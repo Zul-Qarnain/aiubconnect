@@ -1,0 +1,110 @@
+"use client";
+
+import Link from "next/link";
+import type { Post } from "@/lib/types";
+import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  ArrowUp,
+  ArrowDown,
+  MessageSquare,
+  TrendingUp,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { UserAvatar } from "@/components/user-avatar";
+import Image from "next/image";
+
+interface PostCardProps {
+  post: Post;
+  isTrending?: boolean;
+  className?: string;
+}
+
+export function PostCard({ post, isTrending = false, className }: PostCardProps) {
+  const [upvotes, setUpvotes] = useState(post.reactions.upvotes);
+  const [downvotes, setDownvotes] = useState(post.reactions.downvotes);
+  const [vote, setVote] = useState<"up" | "down" | null>(null);
+
+  const handleUpvote = () => {
+    if (vote === 'up') {
+      setUpvotes(upvotes - 1);
+      setVote(null);
+    } else {
+      setUpvotes(upvotes + 1);
+      if (vote === 'down') setDownvotes(downvotes - 1);
+      setVote('up');
+    }
+  };
+
+  const handleDownvote = () => {
+    if (vote === 'down') {
+      setDownvotes(downvotes - 1);
+      setVote(null);
+    } else {
+      setDownvotes(downvotes + 1);
+      if (vote === 'up') setUpvotes(upvotes - 1);
+      setVote('down');
+    }
+  };
+
+  return (
+    <Card className={cn("overflow-hidden hover:border-primary/50 transition-colors duration-300", className)}>
+      <div className="flex">
+        <div className="flex flex-col items-center p-2 bg-muted/50">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleUpvote}>
+            <ArrowUp className={cn("h-5 w-5", vote === "up" && "text-primary fill-primary")} />
+          </Button>
+          <span className="text-sm font-bold">{upvotes - downvotes}</span>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDownvote}>
+            <ArrowDown className={cn("h-5 w-5", vote === "down" && "text-accent fill-accent")} />
+          </Button>
+        </div>
+        <div className="flex-1">
+          <CardHeader className="p-4 pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <UserAvatar user={post.author} className="w-6 h-6" />
+                <span>Posted by {post.author.name}</span>
+                <span>•</span>
+                <time dateTime={post.createdAt}>
+                  {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                </time>
+              </div>
+              <div className="flex items-center gap-2">
+                {isTrending && (
+                  <Badge variant="destructive" className="bg-primary hover:bg-primary/90">
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                    Trending
+                  </Badge>
+                )}
+                <Badge variant="secondary">{post.category}</Badge>
+              </div>
+            </div>
+          </CardHeader>
+          <Link href={`/post/${post.id}`} className="block p-4 pt-0">
+            <CardContent className="p-0">
+              <h2 className="text-xl font-bold font-headline mb-2">{post.title}</h2>
+              {post.imageUrl && (
+                <div className="relative w-full h-64 my-4 rounded-md overflow-hidden">
+                    <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="cover" data-ai-hint="forum image" />
+                </div>
+              )}
+              <p className="text-foreground/80 line-clamp-3">{post.text}</p>
+            </CardContent>
+          </Link>
+          <CardFooter className="p-4 pt-2">
+            <Button variant="ghost" asChild>
+              <Link href={`/post/${post.id}`}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                {post.commentsCount} Comments
+              </Link>
+            </Button>
+          </CardFooter>
+        </div>
+      </div>
+    </Card>
+  );
+}
