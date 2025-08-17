@@ -38,6 +38,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerFooter, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
+import { ScrollArea } from "./ui/scroll-area";
 
 const formSchema = z.object({
   title: z.string().max(300),
@@ -54,60 +57,50 @@ interface PostFormProps {
 
 export function PostForm({ currentUser }: PostFormProps) {
   const [open, setOpen] = useState(false);
-  const [isSuggesting, setIsSuggesting] = useState(false);
-  const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const canPost = currentUser.dailyPostCount < 2;
-  const canPostImage = currentUser.monthlyImagePostCount < 2;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { title: "", text: "", category: "" },
   });
-  
-  const textValue = form.watch("text");
-
-  const handleSuggestCategory = async () => {
-    const content = form.getValues("text");
-    if (!content) {
-      toast({
-        variant: "destructive",
-        title: "No content provided",
-        description: "Please write something in your post to get a category suggestion.",
-      });
-      return;
-    }
-    setIsSuggesting(true);
-    try {
-      const result = await suggestPostCategory({ text: content });
-      if (result.categories && result.categories.length > 0) {
-        const suggestedCategory = result.categories[0];
-        if (categories.map(c => c.toLowerCase()).includes(suggestedCategory.toLowerCase())) {
-          form.setValue("category", categories.find(c => c.toLowerCase() === suggestedCategory.toLowerCase())!);
-        } else {
-          form.setValue("category", "Other");
-        }
-        toast({ title: "Category Suggested!", description: `We've selected "${suggestedCategory}" for you.` });
-      } else {
-        toast({ variant: "destructive", title: "Suggestion failed", description: "Couldn't suggest a category. Please select one manually." });
-      }
-    } catch (error) {
-      console.error("Failed to suggest category:", error);
-      toast({ variant: "destructive", title: "An error occurred", description: "Failed to get category suggestions." });
-    } finally {
-      setIsSuggesting(false);
-    }
-  };
-
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    toast({
-      title: "Post Created!",
-      description: "Your post has been successfully created (simulation).",
-    });
+    // TODO: Actually create post
     setOpen(false);
     form.reset();
+  }
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Post
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Create a new post</DrawerTitle>
+            <DrawerDescription>
+                Share your thoughts with the AIUB community. Daily posts remaining: {2 - currentUser.dailyPostCount}.
+            </DrawerDescription>
+          </DrawerHeader>
+          <ScrollArea className="overflow-y-auto">
+            <PostFormContent form={form} onSubmit={onSubmit} currentUser={currentUser} className="px-4" />
+          </ScrollArea>
+          <DrawerFooter className="pt-2">
+            <Button onClick={form.handleSubmit(onSubmit)} disabled={!canPost}>Submit Post</Button>
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    )
   }
 
   return (
@@ -126,8 +119,66 @@ export function PostForm({ currentUser }: PostFormProps) {
             Daily posts remaining: {2 - currentUser.dailyPostCount}.
           </DialogDescription>
         </DialogHeader>
+        <PostFormContent form={form} onSubmit={onSubmit} currentUser={currentUser} />
+         <DialogFooter>
+            <Button onClick={form.handleSubmit(onSubmit)} disabled={!canPost}>
+                Submit Post
+            </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+interface PostFormContentProps {
+    form: any;
+    onSubmit: (values: z.infer<typeof formSchema>) => void;
+    currentUser: User;
+    className?: string;
+}
+
+function PostFormContent({ form, onSubmit, currentUser, className }: PostFormContentProps) {
+    const [isSuggesting, setIsSuggesting] = useState(false);
+    const { toast } = useToast();
+    const canPostImage = currentUser.monthlyImagePostCount < 2;
+    const textValue = form.watch("text");
+
+    const handleSuggestCategory = async () => {
+        const content = form.getValues("text");
+        if (!content) {
+          toast({
+            variant: "destructive",
+            title: "No content provided",
+            description: "Please write something in your post to get a category suggestion.",
+          });
+          return;
+        }
+        setIsSuggesting(true);
+        try {
+          const result = await suggestPostCategory({ text: content });
+          if (result.categories && result.categories.length > 0) {
+            const suggestedCategory = result.categories[0];
+            if (categories.map(c => c.toLowerCase()).includes(suggestedCategory.toLowerCase())) {
+              form.setValue("category", categories.find(c => c.toLowerCase() === suggestedCategory.toLowerCase())!);
+            } else {
+              form.setValue("category", "Other");
+            }
+            toast({ title: "Category Suggested!", description: `We've selected "${suggestedCategory}" for you.` });
+          } else {
+            toast({ variant: "destructive", title: "Suggestion failed", description: "Couldn't suggest a category. Please select one manually." });
+          }
+        } catch (error) {
+          console.error("Failed to suggest category:", error);
+          toast({ variant: "destructive", title: "An error occurred", description: "Failed to get category suggestions." });
+        } finally {
+          setIsSuggesting(false);
+        }
+    };
+
+    return (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Tabs defaultValue="text" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4" />Text Post</TabsTrigger>
@@ -214,15 +265,7 @@ export function PostForm({ currentUser }: PostFormProps) {
                 </FormItem>
               )}
             />
-
-            <DialogFooter>
-              <Button type="submit" disabled={!canPost}>
-                Submit Post
-              </Button>
-            </DialogFooter>
-          </form>
+            </form>
         </Form>
-      </DialogContent>
-    </Dialog>
-  );
+    )
 }
