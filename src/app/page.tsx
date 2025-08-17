@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold font-headline">Community Feed</h1>
         <PostForm currentUser={currentUser} />
       </div>

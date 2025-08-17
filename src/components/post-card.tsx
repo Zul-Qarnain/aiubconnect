@@ -53,7 +53,7 @@ export function PostCard({ post, isTrending = false, className }: PostCardProps)
   return (
     <Card className={cn("overflow-hidden hover:border-primary/50 transition-colors duration-300", className)}>
       <div className="flex">
-        <div className="flex flex-col items-center p-2 bg-muted/50">
+        <div className="hidden sm:flex flex-col items-center p-2 bg-muted/50">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleUpvote}>
             <ArrowUp className={cn("h-5 w-5", vote === "up" && "text-primary fill-primary")} />
           </Button>
@@ -64,39 +64,48 @@ export function PostCard({ post, isTrending = false, className }: PostCardProps)
         </div>
         <div className="flex-1">
           <CardHeader className="p-4 pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                 <UserAvatar user={post.author} className="w-6 h-6" />
-                <span>Posted by {post.author.name}</span>
-                <span>•</span>
-                <time dateTime={post.createdAt}>
+                <span className="font-medium text-foreground">{post.author.name}</span>
+                <span className="hidden sm:inline-block">•</span>
+                <time dateTime={post.createdAt} className="text-xs">
                   {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                 </time>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start sm:self-center">
                 {isTrending && (
-                  <Badge variant="destructive" className="bg-primary hover:bg-primary/90">
-                    <TrendingUp className="h-4 w-4 mr-1" />
+                  <Badge variant="destructive" className="bg-primary hover:bg-primary/90 text-xs">
+                    <TrendingUp className="h-3 w-3 mr-1" />
                     Trending
                   </Badge>
                 )}
-                <Badge variant="secondary">{post.category}</Badge>
+                <Badge variant="secondary" className="text-xs">{post.category}</Badge>
               </div>
             </div>
           </CardHeader>
-          <Link href={`/post/${post.id}`} className="block p-4 pt-0">
+          <Link href={`/post/${post.id}`} className="block p-4 pt-2">
             <CardContent className="p-0">
               <h2 className="text-xl font-bold font-headline mb-2">{post.title}</h2>
               {post.imageUrl && (
-                <div className="relative w-full h-64 my-4 rounded-md overflow-hidden">
+                <div className="relative w-full aspect-video my-4 rounded-md overflow-hidden">
                     <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="cover" data-ai-hint="forum image" />
                 </div>
               )}
-              <p className="text-foreground/80 line-clamp-3">{post.text}</p>
+              <p className="text-foreground/80 line-clamp-3 text-sm">{post.text}</p>
             </CardContent>
           </Link>
-          <CardFooter className="p-4 pt-2">
-            <Button variant="ghost" asChild>
+          <CardFooter className="p-4 pt-0 sm:pt-2 flex items-center justify-between sm:justify-start">
+             <div className="flex sm:hidden items-center gap-2 bg-muted/50 p-1 rounded-full">
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleUpvote}>
+                    <ArrowUp className={cn("h-4 w-4", vote === "up" && "text-primary fill-primary")} />
+                </Button>
+                <span className="text-xs font-bold px-1">{upvotes - downvotes}</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDownvote}>
+                    <ArrowDown className={cn("h-4 w-4", vote === "down" && "text-accent fill-accent")} />
+                </Button>
+            </div>
+            <Button variant="ghost" asChild className="text-xs sm:text-sm">
               <Link href={`/post/${post.id}`}>
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {post.commentsCount} Comments
