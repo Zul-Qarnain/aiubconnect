@@ -1,10 +1,13 @@
 
+
 "use client";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/header";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+
+export const runtime = 'edge';
 
 export default function RootLayout({
   children,

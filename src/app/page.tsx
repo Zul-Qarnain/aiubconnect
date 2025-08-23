@@ -1,6 +1,9 @@
 
+
 import { getPosts, getCurrentUser } from "@/lib/data";
 import { FeedClient } from "@/components/feed-client";
+
+export const runtime = 'edge';
 
 export default function Home({
   searchParams,
