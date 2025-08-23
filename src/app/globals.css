@@ -47,6 +47,72 @@
     --input: 202 34% 20%;
     --ring: 197 61% 69%;
   }
+
+  .monokai {
+    --background: 220 13% 18%;
+    --foreground: 220 14% 71%;
+    --card: 220 13% 22%;
+    --card-foreground: 220 14% 71%;
+    --popover: 220 13% 18%;
+    --popover-foreground: 220 14% 71%;
+    --primary: 349 89% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 189 83% 72%;
+    --secondary-foreground: 220 13% 18%;
+    --muted: 220 13% 25%;
+    --muted-foreground: 220 14% 50%;
+    --accent: 39 100% 77%;
+    --accent-foreground: 220 13% 18%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 30%;
+    --input: 220 13% 30%;
+    --ring: 349 89% 70%;
+  }
+
+  .tokyo-night {
+    --background: 231 29% 13%;
+    --foreground: 225 33% 81%;
+    --card: 231 29% 16%;
+    --card-foreground: 225 33% 81%;
+    --popover: 231 29% 13%;
+    --popover-foreground: 225 33% 81%;
+    --primary: 189 83% 72%;
+    --primary-foreground: 231 29% 13%;
+    --secondary: 254 94% 76%;
+    --secondary-foreground: 231 29% 13%;
+    --muted: 231 29% 20%;
+    --muted-foreground: 225 33% 60%;
+    --accent: 14 92% 73%;
+    --accent-foreground: 231 29% 13%;
+    --destructive: 349 89% 70%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 231 29% 24%;
+    --input: 231 29% 24%;
+    --ring: 189 83% 72%;
+  }
+  
+  .dracula {
+    --background: 231 15% 18%;
+    --foreground: 60 30% 96%;
+    --card: 232 15% 22%;
+    --card-foreground: 60 30% 96%;
+    --popover: 231 15% 18%;
+    --popover-foreground: 60 30% 96%;
+    --primary: 265 89% 78%;
+    --primary-foreground: 231 15% 18%;
+    --secondary: 181 97% 64%;
+    --secondary-foreground: 231 15% 18%;
+    --muted: 232 15% 28%;
+    --muted-foreground: 265 89% 78%;
+    --accent: 313 100% 76%;
+    --accent-foreground: 231 15% 18%;
+    --destructive: 0 100% 77%;
+    --destructive-foreground: 231 15% 18%;
+    --border: 231 15% 30%;
+    --input: 231 15% 30%;
+    --ring: 265 89% 78%;
+  }
 }
 
 @layer base {
