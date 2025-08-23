@@ -5,9 +5,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { PlusCircle, Image as ImageIcon, FileText, Sparkles, Loader2 } from "lucide-react";
+import { PlusCircle, Image as ImageIcon, FileText } from "lucide-react";
 
-import { suggestPostCategory } from "@/ai/flows/suggest-post-category";
 import type { User } from "@/lib/types";
 
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerFooter, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
 import { ScrollArea } from "./ui/scroll-area";
@@ -140,43 +138,8 @@ interface PostFormContentProps {
 }
 
 function PostFormContent({ form, onSubmit, currentUser, className }: PostFormContentProps) {
-    const [isSuggesting, setIsSuggesting] = useState(false);
-    const { toast } = useToast();
     const canPostImage = currentUser.monthlyImagePostCount < 2;
     const textValue = form.watch("text");
-    const titleValue = form.watch("title");
-
-    const handleSuggestCategory = async () => {
-        const content = titleValue || textValue;
-        if (!content) {
-          toast({
-            variant: "destructive",
-            title: "No content provided",
-            description: "Please write a title or some content to get a category suggestion.",
-          });
-          return;
-        }
-        setIsSuggesting(true);
-        try {
-          const result = await suggestPostCategory({ text: content });
-          if (result.categories && result.categories.length > 0) {
-            const suggestedCategory = result.categories[0];
-            if (categories.map(c => c.toLowerCase()).includes(suggestedCategory.toLowerCase())) {
-              form.setValue("category", categories.find(c => c.toLowerCase() === suggestedCategory.toLowerCase())!);
-            } else {
-              form.setValue("category", "Other");
-            }
-            toast({ title: "Category Suggested!", description: `We've selected "${suggestedCategory}" for you.` });
-          } else {
-            toast({ variant: "destructive", title: "Suggestion failed", description: "Couldn't suggest a category. Please select one manually." });
-          }
-        } catch (error) {
-          console.error("Failed to suggest category:", error);
-          toast({ variant: "destructive", title: "An error occurred", description: "Failed to get category suggestions." });
-        } finally {
-          setIsSuggesting(false);
-        }
-    };
 
     return (
         <Form {...form}>
@@ -206,7 +169,6 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <div className="flex gap-2">
                       <Select onValueChange={field.onChange} value={field.value} defaultValue="">
                         <FormControl>
                           <SelectTrigger>
@@ -219,11 +181,6 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" onClick={handleSuggestCategory} disabled={isSuggesting}>
-                        {isSuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Suggest
-                      </Button>
-                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
