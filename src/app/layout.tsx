@@ -4,8 +4,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/header";
 import "./globals.css";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({
@@ -13,10 +11,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
-  const showSearch = pathname === '/';
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -38,17 +32,9 @@ export default function RootLayout({
           themes={['light', 'dark', 'monokai', 'tokyo-night', 'dracula']}
         >
           <div className="flex flex-col min-h-screen">
-            <Header 
-              searchQuery={searchQuery}
-              onSearchChange={showSearch ? setSearchQuery : undefined}
-            />
+            <Header />
             <main className="flex-1 container mx-auto py-6 sm:py-8 px-4">
-              {/* Pass searchQuery to children if it's the home page */}
-               {pathname === '/' ? (
-                children
-              ) : (
-                children
-              )}
+              {children}
             </main>
           </div>
           <Toaster />
