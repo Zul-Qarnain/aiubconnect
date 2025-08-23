@@ -1,21 +1,26 @@
-import type { Metadata } from "next";
+
+"use client";
+
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/header";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "AIUB Connect",
-  description: "A community forum for AIUB students.",
-};
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState("");
+  const showSearch = pathname === '/';
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>AIUB Connect</title>
+        <meta name="description" content="A community forum for AIUB students." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -25,9 +30,17 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <div className="flex flex-col min-h-screen">
-          <Header />
+          <Header 
+            searchQuery={searchQuery}
+            onSearchChange={showSearch ? setSearchQuery : undefined}
+          />
           <main className="flex-1 container mx-auto py-6 sm:py-8 px-4">
-            {children}
+            {/* Pass searchQuery to children if it's the home page */}
+             {pathname === '/' ? (
+              children
+            ) : (
+              children
+            )}
           </main>
         </div>
         <Toaster />

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -8,6 +9,7 @@ import {
   LogOut,
   ChevronDown,
   BookCopy,
+  Search,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getCurrentUser } from "@/lib/data";
@@ -23,8 +25,14 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
 import { Logo } from "@/components/logo";
+import { Input } from "@/components/ui/input";
 
-export function Header() {
+interface HeaderProps {
+    searchQuery?: string;
+    onSearchChange?: (query: string) => void;
+}
+
+export function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const isMobile = useIsMobile();
   const user = getCurrentUser();
 
@@ -40,6 +48,18 @@ export function Header() {
       </Button>
     </>
   );
+  
+  const searchBar = onSearchChange ? (
+    <div className="relative w-full max-w-md ml-4">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Input 
+        placeholder="Search posts..." 
+        className="pl-9"
+        value={searchQuery}
+        onChange={(e) => onSearchChange(e.target.value)}
+      />
+    </div>
+  ) : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-sm">
@@ -72,34 +92,40 @@ export function Header() {
             {navLinks}
           </nav>
         )}
-
-        <div className="flex items-center gap-4 ml-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 p-1 h-auto rounded-full">
-                <UserAvatar user={user} className="w-8 h-8" />
-                {!isMobile && <span className="font-medium">{user.name}</span>}
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        
+        <div className="flex items-center gap-4 ml-auto flex-1 justify-end">
+            {!isMobile && searchBar}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 p-1 h-auto rounded-full">
+                    <UserAvatar user={user} className="w-8 h-8" />
+                    {!isMobile && <span className="font-medium">{user.name}</span>}
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </div>
+      {isMobile && onSearchChange && (
+        <div className="container px-4 pb-3">
+          {searchBar}
+        </div>
+      )}
     </header>
   );
 }
