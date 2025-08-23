@@ -35,6 +35,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          themes={['light', 'dark', 'monokai', 'tokyo-night', 'dracula']}
         >
           <div className="flex flex-col min-h-screen">
             <Header 

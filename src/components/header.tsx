@@ -43,7 +43,7 @@ interface HeaderProps {
 export function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const isMobile = useIsMobile();
   const user = getCurrentUser();
-  const { setTheme } = useTheme()
+  const { setTheme } = useTheme();
 
   const navLinks = (
     <>
