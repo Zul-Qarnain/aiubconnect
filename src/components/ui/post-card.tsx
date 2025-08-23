@@ -20,9 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/user-avatar";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import dynamic from "next/dynamic";
-
-const ReportAction = dynamic(() => import('@/components/report-action').then(mod => mod.ReportAction), { ssr: false });
+import { ReportAction } from "./report-action";
 
 interface PostCardProps {
   post: Post;

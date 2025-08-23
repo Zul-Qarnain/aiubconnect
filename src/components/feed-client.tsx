@@ -3,7 +3,9 @@
 
 import type { Post, User } from "@/lib/types";
 import { PostCard } from "@/components/post-card";
-import { PostForm } from "@/components/post-form";
+import dynamic from 'next/dynamic';
+
+const PostForm = dynamic(() => import('@/components/post-form').then(mod => mod.PostForm), { ssr: false });
 
 interface FeedClientProps {
   initialPosts: Post[];

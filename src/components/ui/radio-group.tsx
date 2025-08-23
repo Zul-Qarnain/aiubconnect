@@ -33,10 +33,6 @@ const RadioGroupItem = React.forwardRef<
         className
       )}
       {...props}
-      onClick={(e) => {
-          e.stopPropagation();
-          props.onClick?.(e);
-      }}
     >
       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
         <Circle className="h-2.5 w-2.5 fill-current text-current" />

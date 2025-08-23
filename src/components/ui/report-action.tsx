@@ -97,9 +97,11 @@ export function ReportAction({
 
   return (
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogTrigger asChild onClick={handleTriggerClick}>
+        <div onClick={handleTriggerClick} style={{all: 'unset'}}>
+        <AlertDialogTrigger asChild>
             {children}
         </AlertDialogTrigger>
+        </div>
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Report {contentType}</AlertDialogTitle>
@@ -125,7 +127,7 @@ export function ReportAction({
             )}
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={(e) => {e.stopPropagation(); setIsDialogOpen(false)}}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleSubmitReport}>Submit Report</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

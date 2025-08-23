@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -17,8 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Roboto', 'Arial', 'sans-serif'],
-        headline: ['Roboto', 'Arial', 'sans-serif'],
+        body: ['var(--font-roboto)', 'Arial', 'sans-serif'],
+        headline: ['var(--font-roboto)', 'Arial', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

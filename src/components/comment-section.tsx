@@ -14,7 +14,9 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { MoreVertical, Flag } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { ReportAction } from "./report-action";
+import dynamic from "next/dynamic";
+
+const ReportAction = dynamic(() => import('@/components/report-action').then(mod => mod.ReportAction), { ssr: false });
 
 const commentSchema = z.object({
   text: z.string().min(1, "Comment cannot be empty.").max(2000),

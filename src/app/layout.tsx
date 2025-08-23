@@ -6,8 +6,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/header";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Roboto } from 'next/font/google';
 
 export const runtime = 'edge';
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-roboto',
+});
 
 export default function RootLayout({
   children,
@@ -19,14 +26,8 @@ export default function RootLayout({
       <head>
         <title>AIUB Connect</title>
         <meta name="description" content="A community forum for AIUB students." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="font-body antialiased bg-background text-foreground">
+      <body className={`${roboto.variable} font-body antialiased bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

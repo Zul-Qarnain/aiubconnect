@@ -60,7 +60,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
             
             {post.imageUrl && (
                 <div className="relative w-full aspect-video my-6 rounded-lg overflow-hidden">
-                    <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="cover" data-ai-hint="forum image detail" />
+                    <Image src={post.imageUrl} alt={post.title} fill objectFit="cover" data-ai-hint="forum image detail" />
                 </div>
             )}
             
