@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -9,6 +10,8 @@ import {
   ArrowDown,
   MessageSquare,
   TrendingUp,
+  MoreVertical,
+  Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,6 +19,8 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/user-avatar";
 import Image from "next/image";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { ReportAction } from "./report-action";
 
 interface PostCardProps {
   post: Post;
@@ -28,7 +33,9 @@ export function PostCard({ post, isTrending = false, className }: PostCardProps)
   const [downvotes, setDownvotes] = useState(post.reactions.downvotes);
   const [vote, setVote] = useState<"up" | "down" | null>(null);
 
-  const handleUpvote = () => {
+  const handleUpvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (vote === 'up') {
       setUpvotes(upvotes - 1);
       setVote(null);
@@ -39,7 +46,9 @@ export function PostCard({ post, isTrending = false, className }: PostCardProps)
     }
   };
 
-  const handleDownvote = () => {
+  const handleDownvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (vote === 'down') {
       setDownvotes(downvotes - 1);
       setVote(null);
@@ -63,27 +72,44 @@ export function PostCard({ post, isTrending = false, className }: PostCardProps)
           </Button>
         </div>
         <div className="flex-1">
-          <CardHeader className="p-4 pb-2">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                <UserAvatar user={post.author} className="w-6 h-6" />
-                <span className="font-medium text-foreground">{post.author.name}</span>
-                <span className="hidden sm:inline-block">•</span>
-                <time dateTime={post.createdAt} className="text-xs">
-                  {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-                </time>
-              </div>
-              <div className="flex items-center gap-2 self-start sm:self-center">
-                {isTrending && (
-                  <Badge variant="destructive" className="bg-primary hover:bg-primary/90 text-xs">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    Trending
-                  </Badge>
-                )}
-                <Badge variant="secondary" className="text-xs">{post.category}</Badge>
-              </div>
-            </div>
-          </CardHeader>
+            <CardHeader className="p-4 pb-2">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+                        <UserAvatar user={post.author} className="w-6 h-6" />
+                        <span className="font-medium text-foreground">{post.author.name}</span>
+                        <span className="hidden sm:inline-block">•</span>
+                        <time dateTime={post.createdAt} className="text-xs">
+                        {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                        </time>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
+                            {isTrending && (
+                            <Badge variant="destructive" className="bg-primary hover:bg-primary/90 text-xs">
+                                <TrendingUp className="h-3 w-3 mr-1" />
+                                Trending
+                            </Badge>
+                            )}
+                            <Badge variant="secondary" className="text-xs">{post.category}</Badge>
+                        </div>
+                         <ReportAction contentId={post.id} contentOwnerId={post.author.id} contentType="post">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2">
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenuItem>
+                                        <Flag className="mr-2 h-4 w-4"/>
+                                        Report Post
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                         </ReportAction>
+                    </div>
+                </div>
+            </CardHeader>
           <Link href={`/post/${post.id}`} className="block p-4 pt-2">
             <CardContent className="p-0">
               <h2 className="text-xl font-bold font-headline mb-2">{post.title}</h2>

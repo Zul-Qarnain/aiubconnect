@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Comment as CommentType, User } from "@/lib/types";
@@ -6,12 +7,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { UserAvatar } from "./user-avatar";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
+import { MoreVertical, Flag } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { ReportAction } from "./report-action";
 
 const commentSchema = z.object({
   text: z.string().min(1, "Comment cannot be empty.").max(2000),
@@ -24,7 +27,6 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ comments, currentUser }: CommentSectionProps) {
-    const { toast } = useToast();
     const hasCommented = comments.some(c => c.authorId === currentUser.id);
 
     const form = useForm<z.infer<typeof commentSchema>>({
@@ -34,10 +36,8 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
     
     function onSubmit(values: z.infer<typeof commentSchema>) {
         console.log(values);
-        toast({
-            title: "Comment Posted!",
-            description: "Your comment has been posted (simulation).",
-        });
+        // This is a simulation. In a real app, you'd send this to a server.
+        alert(`Comment submitted: ${values.text}`);
         form.reset();
     }
 
@@ -81,13 +81,30 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
             <div className="flex items-start gap-4">
               <UserAvatar user={comment.author} />
               <div className="flex-1">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-bold">{comment.author.name}</span>
-                  <span className="text-muted-foreground">•</span>
-                  <time dateTime={comment.createdAt} className="text-muted-foreground">
-                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                  </time>
-                  {comment.editedAt && <span className="text-muted-foreground text-xs">(edited)</span>}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm">
+                        <span className="font-bold">{comment.author.name}</span>
+                        <span className="text-muted-foreground">•</span>
+                        <time dateTime={comment.createdAt} className="text-muted-foreground">
+                            {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                        </time>
+                        {comment.editedAt && <span className="text-muted-foreground text-xs">(edited)</span>}
+                    </div>
+                    <ReportAction contentId={comment.id} contentOwnerId={comment.author.id} contentType="comment">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                    <Flag className="mr-2 h-4 w-4"/>
+                                    Report Comment
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </ReportAction>
                 </div>
                 <p className="mt-1 text-foreground/90">{comment.text}</p>
               </div>
