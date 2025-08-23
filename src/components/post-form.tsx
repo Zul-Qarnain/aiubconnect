@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -43,7 +44,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, Drawer
 import { ScrollArea } from "./ui/scroll-area";
 
 const formSchema = z.object({
-  title: z.string().max(300),
+  title: z.string().min(1, "Title is required.").max(300),
   text: z.string().max(5000).optional(),
   imageUrl: z.string().url().optional(),
   category: z.string().min(1, "Please select a category."),
@@ -143,9 +144,10 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
     const { toast } = useToast();
     const canPostImage = currentUser.monthlyImagePostCount < 2;
     const textValue = form.watch("text");
+    const titleValue = form.watch("title");
 
     const handleSuggestCategory = async () => {
-        const content = form.getValues("text") || form.getValues("title");
+        const content = titleValue || textValue;
         if (!content) {
           toast({
             variant: "destructive",
@@ -184,7 +186,7 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
                 <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4" />Text Post</TabsTrigger>
                 <TabsTrigger value="image" disabled={!canPostImage}><ImageIcon className="mr-2 h-4 w-4" />Image Post</TabsTrigger>
               </TabsList>
-              <div className="py-4">
+              <div className="py-4 space-y-4">
                 <FormField
                   control={form.control}
                   name="title"
@@ -194,6 +196,34 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
                       <FormControl>
                         <Input placeholder="An interesting title" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <div className="flex gap-2">
+                      <Select onValueChange={field.onChange} value={field.value} defaultValue="">
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button type="button" variant="outline" onClick={handleSuggestCategory} disabled={isSuggesting}>
+                        {isSuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Suggest
+                      </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -248,41 +278,12 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
                         />
                       </FormControl>
                        <FormMessage />
-                       <p className="text-xs text-muted-foreground text-right">{textValue?.length || 0} / 5000</p>
+                       <p className="text-xs text-muted-foreground text-right">{field.value?.length || 0} / 5000</p>
                     </FormItem>
                   )}
                 />
               </TabsContent>
             </Tabs>
-            
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <div className="flex gap-2">
-                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button type="button" variant="outline" onClick={handleSuggestCategory} disabled={isSuggesting}>
-                    {isSuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    Suggest
-                  </Button>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             </form>
         </Form>
     )
