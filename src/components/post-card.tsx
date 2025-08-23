@@ -92,21 +92,21 @@ export function PostCard({ post, isTrending = false, className }: PostCardProps)
                             )}
                             <Badge variant="secondary" className="text-xs">{post.category}</Badge>
                         </div>
-                         <ReportAction contentId={post.id} contentOwnerId={post.author.id} contentType="post">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                    <DropdownMenuItem>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                <ReportAction contentId={post.id} contentOwnerId={post.author.id} contentType="post">
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                         <Flag className="mr-2 h-4 w-4"/>
                                         Report Post
                                     </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                         </ReportAction>
+                                </ReportAction>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
             </CardHeader>

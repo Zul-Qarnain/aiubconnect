@@ -90,21 +90,21 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
                         </time>
                         {comment.editedAt && <span className="text-muted-foreground text-xs">(edited)</span>}
                     </div>
-                    <ReportAction contentId={comment.id} contentOwnerId={comment.author.id} contentType="comment">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-7 w-7">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <ReportAction contentId={comment.id} contentOwnerId={comment.author.id} contentType="comment">
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                     <Flag className="mr-2 h-4 w-4"/>
                                     Report Comment
                                 </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </ReportAction>
+                            </ReportAction>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
                 <p className="mt-1 text-foreground/90">{comment.text}</p>
               </div>

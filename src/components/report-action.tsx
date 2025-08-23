@@ -13,6 +13,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -47,10 +48,7 @@ export function ReportAction({
   const { toast } = useToast();
   const currentUser = getCurrentUser();
 
-  const handleTriggerClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-
+  const handleTriggerClick = () => {
     if (currentUser.id === contentOwnerId) {
       toast({
         variant: "destructive",
@@ -59,7 +57,6 @@ export function ReportAction({
       });
       return;
     }
-    
     setIsDialogOpen(true);
   };
 
@@ -98,9 +95,10 @@ export function ReportAction({
   };
 
   return (
-    <>
-      <div onClick={handleTriggerClick}>{children}</div>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <AlertDialogTrigger asChild onClick={handleTriggerClick}>
+            {children}
+        </AlertDialogTrigger>
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Report {contentType}</AlertDialogTitle>
@@ -131,6 +129,5 @@ export function ReportAction({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
   );
 }

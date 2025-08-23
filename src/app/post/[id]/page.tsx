@@ -39,21 +39,21 @@ export default function PostPage({ params }: { params: { id: string } }) {
                 </div>
                 <div className="flex items-center gap-2">
                     <Badge variant="secondary">{post.category}</Badge>
-                    <ReportAction contentId={post.id} contentOwnerId={post.author.id} contentType="post">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                             <ReportAction contentId={post.id} contentOwnerId={post.author.id} contentType="post">
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                     <Flag className="mr-2 h-4 w-4"/>
                                     Report Post
                                 </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </ReportAction>
+                            </ReportAction>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
             <h1 className="text-3xl font-bold font-headline mb-4">{post.title}</h1>
