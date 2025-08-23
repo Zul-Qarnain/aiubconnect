@@ -145,12 +145,12 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
     const textValue = form.watch("text");
 
     const handleSuggestCategory = async () => {
-        const content = form.getValues("text");
+        const content = form.getValues("text") || form.getValues("title");
         if (!content) {
           toast({
             variant: "destructive",
             title: "No content provided",
-            description: "Please write something in your post to get a category suggestion.",
+            description: "Please write a title or some content to get a category suggestion.",
           });
           return;
         }
@@ -231,6 +231,24 @@ function PostFormContent({ form, onSubmit, currentUser, className }: PostFormCon
                       </FormControl>
                       <FormMessage />
                       <p className="text-xs text-muted-foreground">Image upload is disabled in this demo. Monthly image posts remaining: {2 - currentUser.monthlyImagePostCount}.</p>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="text"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Body (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add some context to your image..."
+                          className="resize-y min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                       <FormMessage />
+                       <p className="text-xs text-muted-foreground text-right">{textValue?.length || 0} / 5000</p>
                     </FormItem>
                   )}
                 />
