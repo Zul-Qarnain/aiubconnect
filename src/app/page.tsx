@@ -1,15 +1,10 @@
-
-
+import { Suspense } from 'react';
 import { getPosts, getCurrentUser } from "@/lib/data";
 import { FeedClient } from "@/components/feed-client";
 
 export const runtime = 'edge';
 
-export default function Home({
-  searchParams,
-}: {
-  searchParams?: { query?: string };
-}) {
+function Feed({ searchParams }: { searchParams?: { query?: string } }) {
   const allPosts = getPosts();
   const currentUser = getCurrentUser();
   const searchQuery = searchParams?.query || '';
@@ -25,5 +20,19 @@ export default function Home({
       initialPosts={filteredPosts}
       currentUser={currentUser}
     />
+  );
+}
+
+export default function Home({
+  searchParams,
+}: {
+  searchParams?: { query?: string };
+}) {
+  return (
+    <div className="w-full">
+      <Suspense fallback={<div>Loading feed...</div>}>
+        <Feed searchParams={searchParams} />
+      </Suspense>
+    </div>
   );
 }
