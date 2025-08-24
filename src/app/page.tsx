@@ -4,34 +4,21 @@ import { FeedClient } from "@/components/feed-client";
 
 export const runtime = 'edge';
 
-function Feed({ searchParams }: { searchParams?: { query?: string } }) {
-  const allPosts = getPosts();
-  const currentUser = getCurrentUser();
-  const searchQuery = searchParams?.query || '';
-
-  const filteredPosts = allPosts.filter(post => 
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.text?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.author.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  return (
-    <FeedClient
-      initialPosts={filteredPosts}
-      currentUser={currentUser}
-    />
-  );
+// This is the component that will be rendered on the server.
+// It fetches the data and passes it to the client component.
+async function PostFeed() {
+  const posts = getPosts();
+  const user = getCurrentUser();
+  return <FeedClient initialPosts={posts} currentUser={user} />;
 }
 
-export default function Home({
-  searchParams,
-}: {
-  searchParams?: { query?: string };
-}) {
+// This is the main page component.
+// It uses Suspense to handle the loading state of the async component.
+export default function HomePage() {
   return (
     <div className="w-full">
-      <Suspense fallback={<div>Loading feed...</div>}>
-        <Feed searchParams={searchParams} />
+      <Suspense fallback={<p>Loading feed...</p>}>
+        <PostFeed />
       </Suspense>
     </div>
   );
