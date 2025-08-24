@@ -3,7 +3,6 @@ import { getPosts, getCurrentUser } from "@/lib/data";
 import { FeedClient } from "@/components/feed-client";
 
 export const runtime = 'edge';
-
 // This is the component that will be rendered on the server.
 // It fetches the data and passes it to the client component.
 async function PostFeed() {
