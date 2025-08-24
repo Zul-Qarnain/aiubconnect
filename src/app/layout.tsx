@@ -1,14 +1,10 @@
 
 
-"use client";
-
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/header";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Roboto } from 'next/font/google';
-
-export const runtime = 'edge';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -40,6 +36,19 @@ export default function RootLayout({
             <main className="flex-1 container mx-auto py-6 sm:py-8 px-4">
               {children}
             </main>
+            <footer className="container mx-auto py-4 px-4 text-center text-sm text-muted-foreground">
+              <p>
+                Developed by{' '}
+                <a
+                  href="https://shihab.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium underline underline-offset-4"
+                >
+                  Zul-Qarnain
+                </a>
+              </p>
+            </footer>
           </div>
           <Toaster />
         </ThemeProvider>
