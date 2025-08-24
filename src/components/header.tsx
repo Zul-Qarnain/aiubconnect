@@ -34,8 +34,8 @@ import { UserAvatar } from "@/components/user-avatar";
 import { Logo } from "@/components/logo";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "next-themes";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useDebouncedCallback } from 'use-debounce';
+import { usePathname } from "next/navigation";
+import { SearchBar } from "./search-bar";
 
 
 export function Header() {
@@ -43,20 +43,8 @@ export function Header() {
   const user = getCurrentUser();
   const { setTheme, themes } = useTheme();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const { replace } = useRouter();
 
   const showSearch = pathname === '/';
-
-  const handleSearch = useDebouncedCallback((term: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set('query', term);
-    } else {
-      params.delete('query');
-    }
-    replace(`${pathname}?${params.toString()}`);
-  }, 300);
 
   const navLinks = (
     <>
@@ -71,17 +59,7 @@ export function Header() {
     </>
   );
   
-  const searchBar = showSearch ? (
-    <div className="relative w-full max-w-md ml-4">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <Input 
-        placeholder="Search posts..." 
-        className="pl-9"
-        defaultValue={searchParams.get('query')?.toString()}
-        onChange={(e) => handleSearch(e.target.value)}
-      />
-    </div>
-  ) : null;
+  const searchBar = showSearch ? <SearchBar /> : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-sm">
