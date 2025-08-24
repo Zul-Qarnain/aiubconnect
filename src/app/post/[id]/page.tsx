@@ -18,7 +18,6 @@ export default function PostPage({ params }: { params: { id: string } }) {
   if (!post) {
     notFound();
   }
-
   const comments = getCommentsByPostId(params.id);
 
   return (
@@ -84,3 +83,5 @@ export default function PostPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+//comment
