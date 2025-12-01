@@ -54,9 +54,16 @@ interface PostFormProps {
   currentUser: User;
 }
 
+import { uploadToCloudinary } from "@/lib/cloudinary-client";
+import { createPost } from "@/lib/firestore";
+import { useToast } from "@/hooks/use-toast";
+
+// ... (existing imports)
+
 export function PostForm({ currentUser }: PostFormProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const canPost = currentUser.dailyPostCount < 2;
 
@@ -65,11 +72,26 @@ export function PostForm({ currentUser }: PostFormProps) {
     defaultValues: { title: "", text: "", category: "" },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // TODO: Actually create post
-    setOpen(false);
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await createPost({
+        ...values,
+        authorId: currentUser.id,
+        author: currentUser, // Storing author snapshot for easier display
+      });
+      toast({
+        title: "Success",
+        description: "Post created successfully",
+      });
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create post",
+        variant: "destructive",
+      });
+    }
   }
 
   if (isMobile) {
@@ -85,7 +107,7 @@ export function PostForm({ currentUser }: PostFormProps) {
           <DrawerHeader className="text-left">
             <DrawerTitle>Create a new post</DrawerTitle>
             <DrawerDescription>
-                Share your thoughts with the AIUB community. Daily posts remaining: {2 - currentUser.dailyPostCount}.
+              Share your thoughts with the AIUB community. Daily posts remaining: {2 - currentUser.dailyPostCount}.
             </DrawerDescription>
           </DrawerHeader>
           <ScrollArea className="overflow-y-auto">
@@ -119,10 +141,10 @@ export function PostForm({ currentUser }: PostFormProps) {
           </DialogDescription>
         </DialogHeader>
         <PostFormContent form={form} onSubmit={onSubmit} currentUser={currentUser} />
-         <DialogFooter>
-            <Button onClick={form.handleSubmit(onSubmit)} disabled={!canPost}>
-                Submit Post
-            </Button>
+        <DialogFooter>
+          <Button onClick={form.handleSubmit(onSubmit)} disabled={!canPost}>
+            Submit Post
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -131,117 +153,136 @@ export function PostForm({ currentUser }: PostFormProps) {
 
 
 interface PostFormContentProps {
-    form: any;
-    onSubmit: (values: z.infer<typeof formSchema>) => void;
-    currentUser: User;
-    className?: string;
+  form: any;
+  onSubmit: (values: z.infer<typeof formSchema>) => void;
+  currentUser: User;
+  className?: string;
 }
 
 function PostFormContent({ form, onSubmit, currentUser, className }: PostFormContentProps) {
-    const canPostImage = currentUser.monthlyImagePostCount < 2;
-    const textValue = form.watch("text");
+  const canPostImage = currentUser.monthlyImagePostCount < 2;
+  const textValue = form.watch("text");
+  const [uploading, setUploading] = useState(false);
 
-    return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs defaultValue="text" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4" />Text Post</TabsTrigger>
-                <TabsTrigger value="image" disabled={!canPostImage}><ImageIcon className="mr-2 h-4 w-4" />Image Post</TabsTrigger>
-              </TabsList>
-              <div className="py-4 space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="An interesting title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value} defaultValue="">
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <TabsContent value="text" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="text"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Content</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="What's on your mind?"
-                          className="resize-y min-h-[120px]"
-                          {...field}
-                        />
-                      </FormControl>
-                       <FormMessage />
-                       <p className="text-xs text-muted-foreground text-right">{textValue?.length || 0} / 5000</p>
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
-              <TabsContent value="image" className="space-y-4">
-                 <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image Upload</FormLabel>
-                      <FormControl>
-                         <Input type="file" disabled />
-                      </FormControl>
-                      <FormMessage />
-                      <p className="text-xs text-muted-foreground">Image upload is disabled in this demo. Monthly image posts remaining: {2 - currentUser.monthlyImagePostCount}.</p>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="text"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Body (Optional)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Add some context to your image..."
-                          className="resize-y min-h-[120px]"
-                          {...field}
-                        />
-                      </FormControl>
-                       <FormMessage />
-                       <p className="text-xs text-muted-foreground text-right">{field.value?.length || 0} / 5000</p>
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
-            </Tabs>
-            </form>
-        </Form>
-    )
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploading(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        form.setValue("imageUrl", url);
+      } catch (error) {
+        console.error("Upload failed", error);
+        // You might want to show a toast here
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <Tabs defaultValue="text" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4" />Text Post</TabsTrigger>
+            <TabsTrigger value="image" disabled={!canPostImage}><ImageIcon className="mr-2 h-4 w-4" />Image Post</TabsTrigger>
+          </TabsList>
+          <div className="py-4 space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="An interesting title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue="">
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <TabsContent value="text" className="space-y-4">
+            <FormField
+              control={form.control}
+              name="text"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Content</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="What's on your mind?"
+                      className="resize-y min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground text-right">{textValue?.length || 0} / 5000</p>
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+          <TabsContent value="image" className="space-y-4">
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image Upload</FormLabel>
+                  <FormControl>
+                    <Input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} />
+                  </FormControl>
+                  {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+                  {field.value && <p className="text-sm text-green-600">Image uploaded!</p>}
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground">Monthly image posts remaining: {2 - currentUser.monthlyImagePostCount}.</p>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="text"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Body (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Add some context to your image..."
+                      className="resize-y min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground text-right">{field.value?.length || 0} / 5000</p>
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+        </Tabs>
+      </form>
+    </Form>
+  )
 }

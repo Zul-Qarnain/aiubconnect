@@ -15,7 +15,7 @@ import {
   Laptop,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getCurrentUser } from "@/lib/data";
+import { useAuth } from "@/context/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +40,7 @@ import { SearchBar } from "./search-bar";
 
 export function Header() {
   const isMobile = useIsMobile();
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();
   const { setTheme, themes } = useTheme();
   const pathname = usePathname();
 
@@ -58,8 +58,20 @@ export function Header() {
       </Button>
     </>
   );
-  
+
   const searchBar = showSearch ? <SearchBar /> : null;
+
+  // Map Firebase user to the shape expected by UserAvatar
+  const appUser = user ? {
+    id: user.uid,
+    name: user.displayName || "User",
+    email: user.email || "",
+    profilePicUrl: user.photoURL || "",
+    createdAt: "",
+    dailyPostCount: 0,
+    monthlyImagePostCount: 0,
+    textPostCount: 0,
+  } : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-sm">
@@ -92,27 +104,28 @@ export function Header() {
             {navLinks}
           </nav>
         )}
-        
+
         <div className="flex items-center gap-4 ml-auto flex-1 justify-end">
-            {!isMobile && searchBar}
+          {!isMobile && searchBar}
+          {appUser ? (
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 p-1 h-auto rounded-full">
-                    <UserAvatar user={user} className="w-8 h-8" />
-                    {!isMobile && <span className="font-medium">{user.name}</span>}
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <UserAvatar user={appUser} className="w-8 h-8" />
+                  {!isMobile && <span className="font-medium">{appUser.name}</span>}
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>{appUser.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/profile">
+                  <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
-                    </Link>
+                  </Link>
                 </DropdownMenuItem>
-                 <DropdownMenuSub>
+                <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                     <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -128,15 +141,15 @@ export function Header() {
                         <Moon className="mr-2 h-4 w-4" />
                         <span>Dark</span>
                       </DropdownMenuItem>
-                       <DropdownMenuItem onClick={() => setTheme("monokai")}>
+                      <DropdownMenuItem onClick={() => setTheme("monokai")}>
                         <Laptop className="mr-2 h-4 w-4" />
                         <span>Monokai</span>
                       </DropdownMenuItem>
-                       <DropdownMenuItem onClick={() => setTheme("tokyo-night")}>
+                      <DropdownMenuItem onClick={() => setTheme("tokyo-night")}>
                         <Laptop className="mr-2 h-4 w-4" />
                         <span>Tokyo Night</span>
                       </DropdownMenuItem>
-                       <DropdownMenuItem onClick={() => setTheme("dracula")}>
+                      <DropdownMenuItem onClick={() => setTheme("dracula")}>
                         <Laptop className="mr-2 h-4 w-4" />
                         <span>Dracula</span>
                       </DropdownMenuItem>
@@ -148,12 +161,22 @@ export function Header() {
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                <DropdownMenuItem onClick={() => logout()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
                 </DropdownMenuItem>
-                </DropdownMenuContent>
+              </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="ghost" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       {isMobile && showSearch && (

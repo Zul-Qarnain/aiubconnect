@@ -27,13 +27,13 @@ interface ReportActionProps {
 }
 
 const reportCategories = [
-    { id: "hate-speech", label: "Hate Speech" },
-    { id: "religious-extremism", label: "Religious Extremism" },
-    { id: "sexual-content", label: "Sexual Content" },
-    { id: "bullying-harassment", label: "Bullying or Harassment" },
-    { id: "spam", label: "Spam" },
-    { id: "misinformation", label: "Misinformation" },
-    { id: "other", label: "Other" },
+  { id: "hate-speech", label: "Hate Speech" },
+  { id: "religious-extremism", label: "Religious Extremism" },
+  { id: "sexual-content", label: "Sexual Content" },
+  { id: "bullying-harassment", label: "Bullying or Harassment" },
+  { id: "spam", label: "Spam" },
+  { id: "misinformation", label: "Misinformation" },
+  { id: "other", label: "Other" },
 ];
 
 export function ReportAction({
@@ -61,7 +61,7 @@ export function ReportAction({
     setIsDialogOpen(true);
   };
 
-  const handleSubmitReport = () => {
+  const handleSubmitReport = async () => {
     if (!selectedCategory) {
       toast({
         variant: "destructive",
@@ -70,65 +70,77 @@ export function ReportAction({
       return;
     }
     if (selectedCategory === "other" && !otherReason.trim()) {
-        toast({
-            variant: "destructive",
-            title: "Please provide a reason",
-        });
-        return;
+      toast({
+        variant: "destructive",
+        title: "Please provide a reason",
+      });
+      return;
     }
-    
-    const reportData = {
+
+    try {
+      const reportData = {
         contentId,
         contentType,
+        contentOwnerId,
+        reporterId: currentUser.id,
         category: selectedCategory,
         ...(selectedCategory === "other" && { reason: otherReason }),
-    };
+      };
 
-    console.log("Report submitted:", reportData);
-    toast({
-      title: "Content Reported",
-      description: `The ${contentType} has been reported for review. Thank you for helping keep our community safe.`,
-    });
-    
-    setIsDialogOpen(false);
-    setSelectedCategory(null);
-    setOtherReason("");
+      const { createReport } = await import("@/lib/firestore");
+      await createReport(reportData);
+
+      toast({
+        title: "Content Reported",
+        description: `The ${contentType} has been reported for review. Thank you for helping keep our community safe.`,
+      });
+
+      setIsDialogOpen(false);
+      setSelectedCategory(null);
+      setOtherReason("");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to submit report",
+      });
+    }
   };
 
   return (
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogTrigger asChild onClick={handleTriggerClick}>
-            {children}
-        </AlertDialogTrigger>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Report {contentType}</AlertDialogTitle>
-            <AlertDialogDescription>
-              Please select a reason for reporting this content. Your report is anonymous.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-4 py-2">
-            <RadioGroup onValueChange={setSelectedCategory} value={selectedCategory || ""}>
-              {reportCategories.map((category) => (
-                <div key={category.id} className="flex items-center space-x-2">
-                  <RadioGroupItem value={category.id} id={category.id} />
-                  <Label htmlFor={category.id}>{category.label}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-            {selectedCategory === "other" && (
-              <Textarea 
-                placeholder="Please describe the issue."
-                value={otherReason}
-                onChange={(e) => setOtherReason(e.target.value)}
-              />
-            )}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={(e) => {e.stopPropagation(); setIsDialogOpen(false)}}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSubmitReport}>Submit Report</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+    <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <AlertDialogTrigger asChild onClick={handleTriggerClick}>
+        {children}
+      </AlertDialogTrigger>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Report {contentType}</AlertDialogTitle>
+          <AlertDialogDescription>
+            Please select a reason for reporting this content. Your report is anonymous.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="space-y-4 py-2">
+          <RadioGroup onValueChange={setSelectedCategory} value={selectedCategory || ""}>
+            {reportCategories.map((category) => (
+              <div key={category.id} className="flex items-center space-x-2">
+                <RadioGroupItem value={category.id} id={category.id} />
+                <Label htmlFor={category.id}>{category.label}</Label>
+              </div>
+            ))}
+          </RadioGroup>
+          {selectedCategory === "other" && (
+            <Textarea
+              placeholder="Please describe the issue."
+              value={otherReason}
+              onChange={(e) => setOtherReason(e.target.value)}
+            />
+          )}
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={(e) => { e.stopPropagation(); setIsDialogOpen(false) }}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleSubmitReport}>Submit Report</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

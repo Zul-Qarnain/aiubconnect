@@ -7,6 +7,10 @@ export type User = {
   dailyPostCount: number;
   monthlyImagePostCount: number;
   textPostCount: number;
+  isAdmin?: boolean;
+  isBanned?: boolean;
+  strikes?: number;
+  suspensionEndDate?: string;
 };
 
 export type Post = {
@@ -24,6 +28,8 @@ export type Post = {
   };
   commentsCount: number;
   sticky: boolean;
+  reportCount?: number;
+  isSuspended?: boolean;
 };
 
 export type Comment = {
@@ -34,4 +40,19 @@ export type Comment = {
   text: string;
   createdAt: string;
   editedAt?: string;
+  reactions: {
+    upvotes: number;
+    downvotes: number;
+  };
+};
+
+export type Report = {
+  id: string;
+  contentId: string;
+  contentType: "post" | "comment";
+  reporterId: string;
+  reason: string;
+  category: string;
+  createdAt: string;
+  status: "pending" | "reviewed" | "resolved";
 };

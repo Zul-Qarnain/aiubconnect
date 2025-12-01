@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
-import { getPosts, getCurrentUser } from "@/lib/data";
+import { getPosts } from "@/lib/firestore";
 import { FeedClient } from "@/components/feed-client";
 
-export const runtime = 'edge';
 // This is the component that will be rendered on the server.
+export const dynamic = 'force-dynamic';
 // It fetches the data and passes it to the client component.
 async function PostFeed() {
-  const posts = getPosts();
-  const user = getCurrentUser();
-  return <FeedClient initialPosts={posts} currentUser={user} />;
+  const posts = await getPosts();
+  // We don't pass user here anymore, FeedClient will handle it via Context
+  return <FeedClient initialPosts={posts as any} />;
 }
 
 // This is the main page component.

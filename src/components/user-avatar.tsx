@@ -8,7 +8,7 @@ interface UserAvatarProps {
 }
 
 export function UserAvatar({ user, className }: UserAvatarProps) {
-  const initials = user.name
+  const initials = (user.name || "User")
     .split(" ")
     .map((n) => n[0])
     .join("");
